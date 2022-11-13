@@ -1,57 +1,23 @@
 ﻿using P1.Data;
+using P1.Logic;
 using System.Net;
 
 namespace P1.IO
 {
+    /*!
+     * P1.IO: "What is my Purpose?"
+     * Me: "You read and write lines"
+     * P1.IO: "Oh my God"
+     * Me: "Yeah join the club"
+    */
     public class Validation
     {
         //Fields
-        Dictionary <string, string> Credentials = new Dictionary <string, string>();
 
         //Constructors
         public Validation () { }
 
-        public Validation (Dictionary<string, string> credentials)
-        {
-            /*this.userName = newuser.getUserName();
-            this.Password = newuser.getPassword();*/
-            this.Credentials = credentials;
-        }
-
         //Methods
-
-        //I wanna method to check to see if email exist within the database(dictionary)
-        public bool doesEmailExist(string userName)
-        {
-            if (Credentials.ContainsKey(userName))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        //I wanna method to validate if the credentials entered exist within the database(dictionary)
-        public bool isCredentialValid(string userName, string Password, Dictionary<string, string> credentials)
-        {
-            if (credentials.ContainsKey(userName))
-            {
-                if (credentials[userName] == Password)
-                {
-                    Console.WriteLine("Credentials Accepted!");
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("The email or password was incorrect please try again");
-                    return false;
-                }
-            }
-            else 
-            {
-                Console.WriteLine("The email or password was incorrect please try again");
-                return false;
-            }
-        }
         //I wanna method to take in Valid Input
         public (string,string) getUserInput()
         {
@@ -79,44 +45,42 @@ namespace P1.IO
             }
             return (inputUsername, inputPassword);
         }
-        //I wanna have a method to register new user
-        public bool getRegistration()
-        {
-            bool isValidEmail = true;
-            while (isValidEmail)
-            {
-                var UserInput = getUserInput();
-                if (!doesEmailExist(UserInput.Item1))
-                {
-                    isValidEmail = false;
-                    Credentials.Add(UserInput.Item1, UserInput.Item2);
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("Registration did not work end program and fix bug");
-                    isValidEmail = false;
-                }
-            }
-            return false;
-        }
-        //I wanna get a method to login an existing user
-        public bool getLogin()
+
+        public User getRegistrationInput()
         {
             
-            bool loops = true;
-            while (loops)
-            {
-                var UserInput = getUserInput();
-                bool answer = isCredentialValid(UserInput.Item1, UserInput.Item2, Credentials);
-                if (answer)
+            User user = new User();
+            List<string> fullInput = new List<string> ();
+            //!                                     INDEX          0               1           2              3
+            List<string> outliner = new List<string> { "First Name", "Last Name", "Email", "Secure Password" };
+
+            foreach(string input in outliner)
+            {   
+                bool loops = true;
+                while (loops)
                 {
-                    Console.WriteLine("Login Accepted!");
-                    return true;
+                    Console.WriteLine($"Please enter your {input}");
+                    Console.Write($"{input}: ");
+                    string userInput = Console.ReadLine();
+
+                    if (!String.IsNullOrEmpty(userInput))
+                    {
+                        fullInput.Add(userInput);
+                        loops = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Please enter a valid {input}");
+                    }
                 }
             }
-            return false;
+            user.FirstName = fullInput[0];
+            user.LastName = fullInput[1];
+            user.Email = fullInput[2];
+            user.Password = fullInput[3];
 
-        } 
+            return user;
+
+        }
     }
 }
