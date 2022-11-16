@@ -52,6 +52,9 @@ UPDATE TicketSystem.Tickets
 SET StatusofTicket = 'APPROVED'
 WHERE employeeid = 1 AND Descriptions = 'Travel Gas';
 
+ALTER TABLE TicketSystem.Users 
+ADD CONSTRAINT Email UNIQUE (Email);
+
 
 SELECT TicketSystem.Users.FirstName, TicketSystem.Users.LastName, TicketSystem.Tickets.Descriptions, TicketSystem.Tickets.Amount, TicketSystem.Tickets.StatusofTicket
 FROM TicketSystem.Users, TicketSystem.Tickets
@@ -60,3 +63,6 @@ AND TicketSystem.Users.EmployeeId = 1;
 
 SELECT * FROM TicketSystem.Tickets;
 Select * FROM TicketSystem.Users;
+
+DELETE FROM TicketSystem.Users
+WHERE EmployeeId = 4;

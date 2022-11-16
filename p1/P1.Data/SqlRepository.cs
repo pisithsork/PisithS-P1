@@ -21,39 +21,42 @@ namespace P1.Data
         //Methods
         // I wanna make a method to call all users
 
-        public IEnumerable<User> GetAllUsers()
+        public List<User> GetAllUsers()
         {
-            List<User> users = new List<User>();
-            using SqlConnection Connection = new SqlConnection(ConnectionString);
-
-            Connection.Open();
-            //                                   Index      0             1           2       3     4          5
-            using SqlCommand Command = new("SELECT EmployeeId, FirstName, LastName, PW, Email, isManager FROM TicketSystem.Users;", Connection);
-
-            using SqlDataReader Reader = Command.ExecuteReader();
-
-            while (Reader.Read())
+            var users = new List<User>();
+            using (SqlConnection Connection = new SqlConnection(ConnectionString))
             {
-                int EmployeeId = Reader.GetInt32(0);
-                string FirstName = Reader.GetString(1);
-                string LastName = Reader.GetString(2);
-                string PW = Reader.GetString(3);
-                string Email = Reader.GetString(4);
-                int isManager = Reader.GetByte(5);
+                    
+                //                                   Index      0             1           2       3     4          5
+                using SqlCommand Command = new("SELECT EmployeeId, FirstName, LastName, PW, Email, isManager FROM TicketSystem.Users;", Connection);
+                Connection.Open();
+                using SqlDataReader Reader = Command.ExecuteReader();
 
-                // The 1 indicate it is a manager and the 0 indicate it is an employee
-                if(isManager == 1)
+                while (Reader.Read())
                 {
-                    users.Add(new(EmployeeId, FirstName, LastName, PW, Email, true));
-                }
-                else
-                {
-                    users.Add(new(EmployeeId, FirstName, LastName, PW, Email, false));
-                }
+                    int EmployeeId = Reader.GetInt32(0);
+                    string FirstName = Reader.GetString(1);
+                    string LastName = Reader.GetString(2);
+                    string PW = Reader.GetString(3);
+                    string Email = Reader.GetString(4);
+                    int isManager = Reader.GetByte(5);
 
+                    // The 1 indicate it is a manager and the 0 indicate it is an employee
+                    if(isManager == 1)
+                    {
+                        users.Add(new(EmployeeId, FirstName, LastName, PW, Email, true));
+                    }
+                    else
+                    {
+                        users.Add(new(EmployeeId, FirstName, LastName, PW, Email, false));
+                    }
+
+                }
+                Reader.Close();
+                Command.Dispose();
             }
-            Reader.Close();
             return users;
+            
 
         }
 
@@ -82,7 +85,6 @@ namespace P1.Data
         //Refactor Dictionary to Database(Repo)
         public bool isCredentialValid(string userName, string Password)
         {
-            List<string> Emails = new List<string>();
             using SqlConnection Connection = new SqlConnection(ConnectionString);
 
             Connection.Open();

@@ -4,12 +4,10 @@ using P1.Data;
 using System;
 using System.Net.Mail;
 
-public class Program
+/*public class Program
 {
     //! NOTES:
-    //! Complete in Validation.cs file the getRegistrationInput()
-    //! Create the AddNewUser in SqlRepository.cs
-    //! Test ALL NEW MOVED AND CREATED FUNCTION to ensure proper refactoring.
+    //! Implement a method to get the current user based on 
     public static void Main(String[] args)
     {
 
@@ -27,14 +25,15 @@ public class Program
 
         Console.WriteLine(System1.DisplayUser());
         Console.WriteLine();
+    }
+}    
+*/
 
-
-
-
-
-        //!Once testing is done uncomment this
+ //!Once testing is done uncomment this
         //Credentials.LoginOrRegister();
 
 
-    }
-}
+//?We shall be testing implementing an API God please be by my side
+
+
+

@@ -9,7 +9,7 @@ namespace P1.Data
 {
     public interface IRepository
     {
-        public IEnumerable<User> GetAllUsers();
+        public List<User> GetAllUsers();
         public bool doesEmailExist(string username);
         public bool isCredentialValid(string userName, string Password);
         public void AddNewUser(User newUser);
