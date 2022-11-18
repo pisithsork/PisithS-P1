@@ -20,7 +20,22 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+
+app.MapGet("/getusers", () =>
+{
+    IRepository repo = new SqlRepository(connectionvalue);
+    return repo.GetAllUsers();
+
+});
+
+
+app.Run();
+
+
+
+
+
+/*var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
@@ -37,22 +52,15 @@ app.MapGet("/weatherforecast", () =>
         .ToArray();
     return forecast;
 })
-.WithName("GetWeatherForecast");
+.WithName("GetWeatherForecast");*/
 
 
 //I wanna get all users from my database
 
 //https:locahost:7284/getusers
-app.MapGet("/getusers", () =>
-{
-    IRepository repo = new SqlRepository(connectionvalue);
-    return repo.GetAllUsers();
 
-});
 
-app.Run();
-
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
+/*internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+}*/

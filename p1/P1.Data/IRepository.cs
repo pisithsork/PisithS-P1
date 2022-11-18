@@ -13,6 +13,11 @@ namespace P1.Data
         public bool doesEmailExist(string username);
         public bool isCredentialValid(string userName, string Password);
         public void AddNewUser(User newUser);
+        public User GetCurrentUser(string currentuserEmail);
+        public void AddNewTicket(Ticket newticket, User currentuser);
+        public List<Ticket> getUserTickets(User currentuser);
+        public List<Ticket> getAllTickets(User currentuser);
+        public void UpdateTicket(Ticket updatedticket);
 
     }
 }

@@ -14,7 +14,7 @@ namespace P1.App
     {
         //Fields
         IRepository Repo;
-        Validation validate = new Validation();
+        //Validation validate = new Validation();
 
         //Constructors
         public TicketSystem() { }
@@ -37,8 +37,9 @@ namespace P1.App
 
         }
 
-        public void LoginOrRegister()
+        public User LoginOrRegister()
         {
+            User currentuser = new User();
             bool toContinue = true;
             while (toContinue)
             {
@@ -53,8 +54,9 @@ namespace P1.App
 
                     else if (entryInput == "1")
                     {
-                        getLogin();
+                        currentuser = getLogin();
                         toContinue = false;
+                        
                     }
                     else
                     {
@@ -62,6 +64,7 @@ namespace P1.App
                     }
                 }
             }
+            return currentuser;
         }
 
         public void getRegistration()
@@ -69,38 +72,113 @@ namespace P1.App
             bool isValidEmail = true;
             while (isValidEmail)
             {
-                User newUser = validate.getRegistrationInput();
+                User newUser = ConsoleMenu.getRegistrationInput();
                 if (! Repo.doesEmailExist(newUser.Email))
                 {
                     isValidEmail = false;
                     Repo.AddNewUser(newUser);
-                    Console.WriteLine("Registration was successful!\n" +
+                    System.Console.WriteLine("Registration was successful!\n" +
                             "You will be prompt back to the previous menu.");
-                    Console.WriteLine();
+                    System.Console.WriteLine();
                 }
                 else
                 {
-                    Console.WriteLine("That email you entered already exist. You will be prompt to the previous menu");
-                    Console.WriteLine();
+                    System.Console.WriteLine("That email you entered already exist. You will be prompt to the previous menu");
+                    System.Console.WriteLine();
                     isValidEmail = false;
                 }
             }
         }
-        public void getLogin()
+        public User getLogin()
         {
 
             bool loops = true;
+            User currentuser = new User();
             while (loops)
             {
-                var UserInput = validate.getUserInput();
+                var UserInput = ConsoleMenu.getUserInput();
                 bool answer = Repo.isCredentialValid(UserInput.Item1, UserInput.Item2);
                 if (answer)
                 {
                     Console.WriteLine("Login Accepted!");
+                    currentuser = Repo.GetCurrentUser(UserInput.Item1);
+                    getMenuInput(currentuser);
                     loops = false;
                 }
             }
+            return currentuser;
 
+        }
+
+        public void getMenuInput(User currentuser)
+        {
+            bool LoggedIn = true;
+            //If the current user is NOT a manager then display the following options
+            if (currentuser.isManager = false) { 
+                do
+                {
+                    int curruserinput = ConsoleMenu.DisplayMenu(currentuser);
+                    switch (curruserinput)
+                    {
+                        case 1:
+                            Ticket newticket = ConsoleMenu.getTicketInput();
+                            Repo.AddNewTicket(newticket, currentuser);
+                            break;
+                        case 2:
+                            //Needs to be filtered to either display pending tickets only, denied tickets only, and pending tickets only.
+                            IEnumerable<Ticket> usertickets = Repo.getUserTickets(currentuser);
+                            ConsoleMenu.DisplayTickets(usertickets);
+                            break;
+                        case 3:
+                            LoggedIn = false;
+                            return;
+                        default:
+                            Console.WriteLine("Enter a valid input");
+                            break;
+                    }
+                } while (LoggedIn);
+            }
+
+            //Else being the only other choice of being a manager display the following options
+            else
+            {
+                do
+                {
+                    int curruserinput = ConsoleMenu.DisplayMenu(currentuser);
+                    switch (curruserinput)
+                    {
+                        case 1:
+                            IEnumerable<Ticket> pendingtickets = Repo.getAllTickets(currentuser);
+                            ConsoleMenu.DisplayTickets(pendingtickets);
+                            //!In the future this needs to be able to also delete the pending tickets that would be copy and completed in a different table to ensure that the submission is final
+                            Ticket updatedticket = ConsoleMenu.UpdateTicketInput(pendingtickets);
+                            Repo.UpdateTicket(updatedticket);
+                            break;
+                        case 2:
+                            //Must be changed to display pending tickets
+                            IEnumerable<Ticket> usertickets = Repo.getAllTickets(currentuser);
+                            ConsoleMenu.DisplayTickets(usertickets);
+                            break;
+                        case 3:
+                            LoggedIn = false;
+                            return;
+                        default:
+                            Console.WriteLine("Enter a valid input");
+                            break;
+                    }
+                } while (LoggedIn);
+            }
+
+            /*if (curruserinput == 1)
+            {
+                Ticket newticket = ConsoleMenu.getTicketInput();
+                Repo.AddNewTicket(newticket, currentuser);
+            }
+            else
+            {
+                *//*IEnumerable<Ticket> usertickets = Repo.getUserTickets(currentuser);
+                ConsoleMenu.DisplayUserTickets(usertickets);*//*
+            }*/
         }
 
 
