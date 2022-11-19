@@ -1,5 +1,6 @@
 ﻿using P1.Logic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Data.SqlClient;
 using System.Net;
 
@@ -19,46 +20,6 @@ namespace P1.Data
         }
 
         //Methods
-        // I wanna make a method to call all users
-
-        public List<User> GetAllUsers()
-        {
-            var users = new List<User>();
-            using (SqlConnection Connection = new SqlConnection(ConnectionString))
-            {
-
-                //                                   Index      0             1           2       3     4          5
-                using SqlCommand Command = new("SELECT EmployeeId, FirstName, LastName, PW, Email, isManager FROM TicketSystem.Users;", Connection);
-                Connection.Open();
-                using SqlDataReader Reader = Command.ExecuteReader();
-
-                while (Reader.Read())
-                {
-                    int EmployeeId = Reader.GetInt32(0);
-                    string FirstName = Reader.GetString(1);
-                    string LastName = Reader.GetString(2);
-                    string PW = Reader.GetString(3);
-                    string Email = Reader.GetString(4);
-                    int isManager = Reader.GetByte(5);
-
-                    // The 1 indicate it is a manager and the 0 indicate it is an employee
-                    if (isManager == 1)
-                    {
-                        users.Add(new(EmployeeId, FirstName, LastName, PW, Email, true));
-                    }
-                    else
-                    {
-                        users.Add(new(EmployeeId, FirstName, LastName, PW, Email, false));
-                    }
-
-                }
-                Reader.Close();
-                Command.Dispose();
-            }
-            return users;
-
-
-        }
 
         public User GetCurrentUser(string currentuserEmail)
         {
@@ -92,6 +53,8 @@ namespace P1.Data
             return currentuser;
         }
 
+
+
         public bool doesEmailExist(string userName)
         {
             List<string> Emails = new List<string>();
@@ -114,7 +77,7 @@ namespace P1.Data
             return false;
         }
 
-        //Refactor Dictionary to Database(Repo)
+
         public bool isCredentialValid(string userName, string Password)
         {
             using SqlConnection Connection = new SqlConnection(ConnectionString);
@@ -170,7 +133,7 @@ namespace P1.Data
         {
             newticket.EmployeeId = currentuser.EmployeeId;
             using SqlConnection Connection = new SqlConnection(ConnectionString);
-            string CommandText = @"INSERT INTO TicketSystem.Tickets (employeeid, Descriptions, Amount, StatusofTicket) VALUES (@EmployeeId, @Description, @Amount, DEFAULT);";
+            string CommandText = @"INSERT INTO TicketSystem.Tickets (employeeid, Descriptions, Amount, StatusofTicket, SubmittedAt, CompletedAt) VALUES (@EmployeeId, @Description, @Amount, DEFAULT, DEFAULT, DEFAULT);";
             Connection.Open();
 
             using SqlCommand Command = new SqlCommand(CommandText, Connection);
@@ -181,15 +144,31 @@ namespace P1.Data
             Command.ExecuteNonQuery();
             Connection.Close();
         }
+        
 
-        public List<Ticket> getUserTickets(User currentuser)
+
+        public List<Ticket> getUserTickets(User currentuser, int tickettype)
         {
             var ticketList = new List<Ticket>();
             using SqlConnection Connection = new SqlConnection(ConnectionString);
-            
+            SqlCommand Command = new SqlCommand();
             Connection.Open();
 
-            using SqlCommand Command = new(@"SELECT * FROM TicketSystem.Tickets WHERE employeeid = @EmployeeId", Connection);
+            switch (tickettype)
+            {
+                case 1:
+                    Command = new(@"SELECT * FROM [View.PendingTickets] WHERE employeeid = @EmployeeId;", Connection);
+                    break;
+                case 2:
+                    Command = new(@"SELECT * FROM [View.ApprovedTickets] WHERE employeeid = @EmployeeId;", Connection);
+                    break;
+                case 3:
+                    Command = new(@"SELECT * FROM [View.ApprovedTickets] WHERE employeeid = @EmployeeId;", Connection);
+                    break;
+                case 4:
+                    Command = new(@"SELECT * FROM TicketSystem.Tickets WHERE employeeid = @EmployeeId", Connection);
+                    break;
+            }
             Command.Parameters.AddWithValue("@EmployeeId", currentuser.EmployeeId);
             using SqlDataReader Reader = Command.ExecuteReader();
             while (Reader.Read())
@@ -199,6 +178,8 @@ namespace P1.Data
                 usertickets.Description = Reader.GetString(2);
                 usertickets.Amount = Decimal.ToDouble(Reader.GetDecimal(3));
                 usertickets.StatusofTicket = Reader.GetString(4);
+                usertickets.SubmittedAt = Reader.GetDateTime(5);
+                usertickets.CompletedAt = Reader.GetDateTime(6);
                 ticketList.Add(usertickets);
             }
             Reader.Close();
@@ -207,14 +188,15 @@ namespace P1.Data
             return ticketList;
         }
 
+
         public List<Ticket> getAllTickets(User currentuser)
+        //Gets all of PENDING tickets only
         {
             var ticketList = new List<Ticket>();
             using SqlConnection Connection = new SqlConnection(ConnectionString);
 
             Connection.Open();
-
-            using SqlCommand Command = new(@"SELECT * FROM TicketSystem.Tickets;", Connection);
+            using SqlCommand Command = new("SELECT * FROM [View.PendingTickets]", Connection);
             using SqlDataReader Reader = Command.ExecuteReader();
             while (Reader.Read())
             {
@@ -224,6 +206,8 @@ namespace P1.Data
                 usertickets.Description = Reader.GetString(2);
                 usertickets.Amount = Decimal.ToDouble(Reader.GetDecimal(3));
                 usertickets.StatusofTicket = Reader.GetString(4);
+                usertickets.SubmittedAt = Reader.GetDateTime(5);
+                usertickets.CompletedAt = Reader.GetDateTime(6);
                 ticketList.Add(usertickets);
             }
             Reader.Close();
@@ -231,6 +215,8 @@ namespace P1.Data
 
             return ticketList;
         }
+
+
 
         public void UpdateTicket(Ticket updatedticket)
         {

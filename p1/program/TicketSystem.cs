@@ -25,17 +25,6 @@ namespace P1.App
         }
         
         //Methods
-        public string DisplayUser ()
-        {
-            StringBuilder StringBuilder = new StringBuilder();
-            IEnumerable<User> users = Repo.GetAllUsers();
-            foreach(User user in users)
-            {
-                StringBuilder.AppendLine(user.GetUserInformation());
-            }
-            return StringBuilder.ToString();
-
-        }
 
         public User LoginOrRegister()
         {
@@ -91,7 +80,6 @@ namespace P1.App
         }
         public User getLogin()
         {
-
             bool loops = true;
             User currentuser = new User();
             while (loops)
@@ -114,7 +102,7 @@ namespace P1.App
         {
             bool LoggedIn = true;
             //If the current user is NOT a manager then display the following options
-            if (currentuser.isManager = false) { 
+            if (!currentuser.isManager) { 
                 do
                 {
                     int curruserinput = ConsoleMenu.DisplayMenu(currentuser);
@@ -125,8 +113,8 @@ namespace P1.App
                             Repo.AddNewTicket(newticket, currentuser);
                             break;
                         case 2:
-                            //Needs to be filtered to either display pending tickets only, denied tickets only, and pending tickets only.
-                            IEnumerable<Ticket> usertickets = Repo.getUserTickets(currentuser);
+                            int tickettype = ConsoleMenu.GetTicketType();
+                            IEnumerable<Ticket> usertickets = Repo.getUserTickets(currentuser, tickettype);
                             ConsoleMenu.DisplayTickets(usertickets);
                             break;
                         case 3:
@@ -150,12 +138,10 @@ namespace P1.App
                         case 1:
                             IEnumerable<Ticket> pendingtickets = Repo.getAllTickets(currentuser);
                             ConsoleMenu.DisplayTickets(pendingtickets);
-                            //!In the future this needs to be able to also delete the pending tickets that would be copy and completed in a different table to ensure that the submission is final
                             Ticket updatedticket = ConsoleMenu.UpdateTicketInput(pendingtickets);
                             Repo.UpdateTicket(updatedticket);
                             break;
                         case 2:
-                            //Must be changed to display pending tickets
                             IEnumerable<Ticket> usertickets = Repo.getAllTickets(currentuser);
                             ConsoleMenu.DisplayTickets(usertickets);
                             break;
@@ -168,19 +154,6 @@ namespace P1.App
                     }
                 } while (LoggedIn);
             }
-
-            /*if (curruserinput == 1)
-            {
-                Ticket newticket = ConsoleMenu.getTicketInput();
-                Repo.AddNewTicket(newticket, currentuser);
-            }
-            else
-            {
-                *//*IEnumerable<Ticket> usertickets = Repo.getUserTickets(currentuser);
-                ConsoleMenu.DisplayUserTickets(usertickets);*//*
-            }*/
         }
-
-
     }
 }

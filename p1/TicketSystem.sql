@@ -66,3 +66,37 @@ Select * FROM TicketSystem.Users;
 
 DELETE FROM TicketSystem.Users
 WHERE EmployeeId = 4;
+
+
+
+
+-- NEWLY UPDATED TABLES AND VALUES
+CREATE TABLE TicketSystem.PendingTickets
+(
+    TicketId INT NOT NULL IDENTITY PRIMARY KEY,
+    employeeid INT NOT NULL FOREIGN KEY REFERENCES TicketSystem.Users(EmployeeId),
+    Descriptions VARCHAR(MAX) NOT NULL,
+    Amount DECIMAL(10,2) NOT NULL,
+    StatusofTicket VARCHAR(8) DEFAULT('PENDING'),
+    SubmittedAt DATETIME DEFAULT(CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE TicketSystem.CompletedTickets
+(
+    ticketid INT NOT NULL FOREIGN KEY REFERENCES TicketSystem.PendingTickets(TicketId),
+    employee INT NOT NULL FOREIGN KEY REFERENCES TicketSystem.Users(EmployeeId),
+    Descriptions VARCHAR(MAX) NOT NULL,
+    Amount Decimal(10,2) NOT NULL,
+    StatusofTicket VARCHAR(8),
+    CompletedAt DATETIME DEFAULT(CURRENT_TIMESTAMP)
+);
+
+INSERT INTO TicketSystem.PendingTickets (employeeid, Descriptions, Amount, StatusofTicket, SubmittedAt)
+VALUES
+    (2,'Travel Gas', 65.32, DEFAULT, DEFAULT),
+    (3,'Food Lunch', 12.20, DEFAULT, DEFAULT),
+    (3, 'Other Online Certification', 100.00, DEFAULT, DEFAULT),
+    (6, 'Lodging Mariott', 650.90, DEFAULT, DEFAULT),
+    (5, 'Travel Business Flight', 345.78, DEFAULT, DEFAULT),
+    (5, 'Travel Gas', 43.00, DEFAULT, DEFAULT),
+    (3, 'Online Classes', 250.00, DEFAULT, DEFAULT)

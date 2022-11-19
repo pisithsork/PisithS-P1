@@ -16,10 +16,8 @@ namespace P1.IO
         //Fields
 
         //Constructors
-        //public Validation () { }
 
         //Methods
-        //I wanna method to take in Valid Input
         public static (string,string) getUserInput()
         {
             string inputUsername = "";
@@ -49,7 +47,6 @@ namespace P1.IO
 
         public static User getRegistrationInput()
         {
-            
             User user = new User();
             List<string> fullInput = new List<string> ();
             //!                                     INDEX          0               1           2              3
@@ -79,15 +76,15 @@ namespace P1.IO
             user.LastName = fullInput[1];
             user.Email = fullInput[2];
             user.Password = fullInput[3];
-
             return user;
-
         }
+
+
         public static int DisplayMenu(User currentuser)
         {
             Console.Write($"Welcome back {currentuser.FirstName} {currentuser.LastName} \n");
             //If the user is NOT a manager printout the following options
-            if (currentuser.isManager = false) 
+            if (!currentuser.isManager) 
             {
                 Console.WriteLine("Please select the following options:\n[1]. Create a Reimbursement Ticket \n[2]. View previous submitted tickets\n[3]. Log Out");
                 bool isValid = true;
@@ -169,14 +166,16 @@ namespace P1.IO
         public static void DisplayTickets(IEnumerable<Ticket> usertickets)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("TicketID \t\t Description \t\t\t Amount \t\t Current Status");
-            sb.AppendLine("======== \t\t =========== \t\t\t ====== \t\t ==============");
+            sb.AppendLine("TicketID \t Description \t\t\t Amount \t Current Status \t Submitted At \t\t Completed At");
+            sb.AppendLine("======== \t =========== \t\t\t ====== \t ============== \t ============ \t\t ============");
             foreach (Ticket ticket in usertickets)
             {
-                string thisstring = String.Format("{0,-25}", ticket.TicketId);
-                thisstring += String.Format("{0,-32}", ticket.Description);
-                thisstring += String.Format("{0,-25:C}", ticket.Amount);
+                string thisstring = String.Format("{0,-15}", ticket.TicketId);
+                thisstring += String.Format("{0,-34}", ticket.Description);
+                thisstring += String.Format("{0,-16:C}", ticket.Amount);
                 thisstring += String.Format("{0,-20}", ticket.StatusofTicket);
+                thisstring += String.Format("{0, -27}", ticket.SubmittedAt);
+                thisstring += String.Format("{0, -12}", ticket.CompletedAt);
                 sb.AppendLine(thisstring);
             }
             Console.WriteLine(sb);
@@ -233,5 +232,33 @@ namespace P1.IO
             Console.WriteLine("Oops wrong way, turn it back around");
             return updateticket;
         }
+
+
+        //I wanna have a method to decide if user wants to get specific types of tickets based on the status of the tickets
+        public static int GetTicketType()
+        {
+            bool isValid = true;
+            int num = -1;
+            isValid = true;
+            while (isValid) {
+                Console.WriteLine("Select from the following of which ticket you want to view:\n[1]. Pending\n[2]. Approved\n[3]. Denied\n[4]. All");
+                string returnvalue = Console.ReadLine();
+                if (!(String.IsNullOrEmpty(returnvalue)))
+                {
+                    if(returnvalue == "1" || returnvalue == "2" || returnvalue == "3" || returnvalue == "4") {
+                        num = Int32.Parse(returnvalue);
+                        isValid = false;
+                        return num;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please enter a valid input");
+                    }
+                }
+            }
+            Console.WriteLine("Error, reached outside of while loop in GetTicketType()");
+            return num;
+        }
+               
     }
 }
