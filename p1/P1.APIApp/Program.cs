@@ -61,9 +61,11 @@ app.MapPost("/ticket", (Ticket newticket, SqlRepository repo) =>
     return Results.Created($"/ticket/{newticket.TicketId}", newticket);
 });
 
-app.MapPost("/gettickets", (User currentuser, SqlRepository repo) =>
+//!Gets all user tickets
+app.MapPost("/alltickets/{employeeid}", (int employeeid, User currentuser, SqlRepository repo) =>
 {
     var listoftickets = repo.getUserTickets(currentuser);
+    employeeid = currentuser.EmployeeId;
     return listoftickets;
 });
 //!Gets all pending tickets
@@ -72,21 +74,24 @@ repo.getPendingTickets());
 
 
 
-app.MapPost("/pendingtickets", (User currentuser, SqlRepository repo) =>
+app.MapPost("/pendingtickets/{employeeid}", (int employeeid, User currentuser, SqlRepository repo) =>
 {
     var pendingtickets = repo.PendingUserTickets(currentuser);
+    employeeid = currentuser.EmployeeId;
     return pendingtickets;
 });
 
-app.MapPost("/approvedtickets", (User currentuser, SqlRepository repo) =>
+app.MapPost("/approvedtickets/{employeeid}", (int employeeid, User currentuser, SqlRepository repo) =>
 {
     var approvedtickets = repo.ApprovedUserTickets(currentuser);
+    employeeid = currentuser.EmployeeId;
     return approvedtickets;
 });
 
-app.MapPost("/deniedtickets", (User currentuser, SqlRepository repo) =>
+app.MapPost("/deniedtickets/{employeeid}", (int employeeid, User currentuser, SqlRepository repo) =>
 {
     var deniedtickets = repo.DeniedUserTickets(currentuser);
+    employeeid = currentuser.EmployeeId;
     return deniedtickets;
 });
 

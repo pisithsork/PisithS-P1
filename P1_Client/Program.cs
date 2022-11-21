@@ -33,6 +33,7 @@ namespace P1.Client
 
                 //Menu Display for either a manager or a employee
                 Console.Clear();
+
                 if (!currentuser.isManager)
                 {
                     int curruserinput = -1;
@@ -142,6 +143,9 @@ namespace P1.Client
             }
 
         }
+
+
+
 
         static void DisplayUser(User user)
         {
@@ -276,7 +280,7 @@ namespace P1.Client
         static async Task<List<Ticket>> getPendingTicketsAsync(User currentuser)
         {
             List<Ticket> pendingtickets = new List<Ticket>();
-            var response = await client.PostAsJsonAsync($"pendingtickets", currentuser);
+            var response = await client.PostAsJsonAsync($"pendingtickets/{currentuser.EmployeeId}", currentuser);
             if (response.IsSuccessStatusCode)
             {
                 pendingtickets = await response.Content.ReadAsAsync<List<Ticket>>();
@@ -287,7 +291,7 @@ namespace P1.Client
         static async Task<List<Ticket>> getApprovedTicketsAsync(User currentuser)
         {
             List<Ticket> approvedtickets = new List<Ticket>();
-            var response = await client.PostAsJsonAsync($"approvedtickets", currentuser);
+            var response = await client.PostAsJsonAsync($"approvedtickets/{currentuser.EmployeeId}", currentuser);
             if (response.IsSuccessStatusCode)
             {
                 approvedtickets = await response.Content.ReadAsAsync<List<Ticket>>();
@@ -298,7 +302,7 @@ namespace P1.Client
         static async Task<List<Ticket>> getDeniedTicketsAsync(User currentuser)
         {
             List<Ticket> deniedtickets = new List<Ticket>();
-            var response = await client.PostAsJsonAsync($"deniedtickets", currentuser);
+            var response = await client.PostAsJsonAsync($"deniedtickets/{currentuser.EmployeeId}", currentuser);
             if (response.IsSuccessStatusCode)
             {
                 deniedtickets = await response.Content.ReadAsAsync<List<Ticket>>();
@@ -309,7 +313,7 @@ namespace P1.Client
         static async Task<List<Ticket>> getUserTicketsAsync(User currentuser)
         {
             List<Ticket> tickets = new List<Ticket>();
-            var response = await client.PostAsJsonAsync($"gettickets", currentuser);
+            var response = await client.PostAsJsonAsync($"alltickets/{currentuser.EmployeeId}", currentuser);
             if (response.IsSuccessStatusCode)
             {
                 tickets = await response.Content.ReadAsAsync<List<Ticket>>();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,7 +42,6 @@ namespace P1.Logic
             this.Amount = amount;
             StatusofTicket = "PENDING";
             this.EmployeeId = Employeeid;
-            SubmittedAt = DateTime.Now;
         }
 
         //Methods
