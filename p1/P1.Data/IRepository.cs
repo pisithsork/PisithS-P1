@@ -19,6 +19,10 @@ namespace P1.Data
         public List<Ticket> getPendingTickets();
         public void UpdateTicket(Ticket updatedticket);
         public List<string> getAllEmail();
+        public List<Ticket> PendingUserTickets(User currentuser);
+        public List<Ticket> ApprovedUserTickets(User currentuser);
+        public List<Ticket> DeniedUserTickets(User currentuser);
+
 
     }
 }

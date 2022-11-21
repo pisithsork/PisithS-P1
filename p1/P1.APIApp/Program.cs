@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using P1.App;
 using P1.Data;
 using P1.Logic;
 var builder = WebApplication.CreateBuilder(args);
@@ -67,9 +66,29 @@ app.MapPost("/gettickets", (User currentuser, SqlRepository repo) =>
     var listoftickets = repo.getUserTickets(currentuser);
     return listoftickets;
 });
-
-app.MapGet("/pendingticket", (SqlRepository repo) =>
+//!Gets all pending tickets
+app.MapGet("/allpendingtickets", (SqlRepository repo) =>
 repo.getPendingTickets());
+
+
+
+app.MapPost("/pendingtickets", (User currentuser, SqlRepository repo) =>
+{
+    var pendingtickets = repo.PendingUserTickets(currentuser);
+    return pendingtickets;
+});
+
+app.MapPost("/approvedtickets", (User currentuser, SqlRepository repo) =>
+{
+    var approvedtickets = repo.ApprovedUserTickets(currentuser);
+    return approvedtickets;
+});
+
+app.MapPost("/deniedtickets", (User currentuser, SqlRepository repo) =>
+{
+    var deniedtickets = repo.DeniedUserTickets(currentuser);
+    return deniedtickets;
+});
 
 app.MapPut("/updateticket", (Ticket updateticket, SqlRepository repo) =>
 {

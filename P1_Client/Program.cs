@@ -29,57 +29,14 @@ namespace P1.Client
             try
             {
                 //We need to first decide if the user will either login or register
-                User currentuser = new User();
-                Console.WriteLine("Welcome to this program, Please select the following option:\n[1]. Login\n[2]. Register");
-                bool toContinue = true;
-                while (toContinue) {
+                User currentuser = await LoginorRegister();
 
-                    string input = Console.ReadLine();
-                    if (String.IsNullOrEmpty(input))
-                    {
-                        Console.WriteLine("Please enter a valid input");
-                        Console.WriteLine("Please select the following option:\n[1]. Login\n[2]. Register");
-                    }
-                    else
-                    {
-                        if(input != "1" && input != "2")
-                        {
-                            Console.WriteLine("Please enter a valid input");
-                            Console.WriteLine("Please select the following option:\n[1]. Login\n[2]. Register");
-                        }
-                        else
-                        {
-                            //Registration occurs here
-                            if (input == "1")
-                            { 
-                                //user will input values to login
-                                currentuser = await getLogin();
-                                toContinue = false;
-                                Console.Clear();
-                            }
-                            else if (input == "2")
-                            {
-                                //user will register then is logged in
-                                currentuser = await getRegistration();
-                                toContinue = false;
-                                Console.Clear();
-                            
-                            }
-                            else
-                            {
-                                Console.WriteLine("Please enter a valid input");
-                            }//3rd if-else end  
-
-                        }//2nd if-else end
-                         
-                    }//1st if-else end
-                     
-                }//while loop end
                 //Menu Display for either a manager or a employee
+                Console.Clear();
                 if (!currentuser.isManager)
                 {
                     int curruserinput = -1;
-                    toContinue = true;
+                    bool toContinue = true;
                     bool LoggedIn = true;
                     //Display Employee menu
                     do
@@ -111,10 +68,10 @@ namespace P1.Client
                                 break;
                             //User filters which ticket to view
                             case 2:
-
                                 /*int tickettype = GetTicketType();*/
+                                IEnumerable<Ticket> usertickets = await GetTicketType(currentuser);
                                 Console.Clear();
-                                IEnumerable<Ticket> usertickets = await getUserTickets(currentuser);
+                                /*IEnumerable<Ticket> usertickets = await getUserTicketsAsync(currentuser);*/
                                 DisplayTickets(usertickets);
                                 break;
                             case 3:
@@ -128,16 +85,14 @@ namespace P1.Client
                 }
                 else
                 {
-                    //display employee menu
+                    //display Manager menu
                     bool LoggedIn = true;
                     do
                     {
                         int curruserinput = -1;
-                        
                         bool isValid = true;
                         while (isValid)
                         {
-                            Console.Clear();
                             Console.WriteLine("Please select the following options:\n[1]. Process pending tickets \n[2]. View pending submitted tickets\n[3]. Log Out");
                             string stringinput = Console.ReadLine();
                             if (!(string.IsNullOrEmpty(stringinput)))
@@ -155,21 +110,19 @@ namespace P1.Client
                         {
                             case 1:
                                 Console.Clear();
-
                                 IEnumerable<Ticket> pendingtickets = await getPendingTicketsAsync();
                                 DisplayTickets(pendingtickets);
 
                                 Ticket updatedticket = UpdateTicketInput(pendingtickets);
                                 await UpdateTicketAsync(updatedticket);
                                 Console.WriteLine($"Ticket {updatedticket.TicketId} has been updated to {updatedticket.StatusofTicket}");
-
                                 Console.WriteLine("Press any key to continue");
                                 Console.ReadKey();
+                                Console.Clear();
                                 break;
                             case 2:
-                                Console.Clear();
-
                                 IEnumerable<Ticket> usertickets = await getPendingTicketsAsync();
+                                Console.Clear();
                                 DisplayTickets(usertickets);
                                 break;
                             case 3:
@@ -182,7 +135,6 @@ namespace P1.Client
                     } while (LoggedIn);
 
                 }
-
             }
             catch(Exception e)
             {
@@ -261,7 +213,6 @@ namespace P1.Client
             return tickets;
         }
 
-
         static async Task<int> GetValidCredentialsAsync(User currentuser)
         {
             int isValid = -1;
@@ -322,7 +273,40 @@ namespace P1.Client
             return response.Headers.Location;
         }
 
-        static async Task<List<Ticket>> getUserTickets(User currentuser)
+        static async Task<List<Ticket>> getPendingTicketsAsync(User currentuser)
+        {
+            List<Ticket> pendingtickets = new List<Ticket>();
+            var response = await client.PostAsJsonAsync($"pendingtickets", currentuser);
+            if (response.IsSuccessStatusCode)
+            {
+                pendingtickets = await response.Content.ReadAsAsync<List<Ticket>>();
+            }
+            return pendingtickets;
+        }
+
+        static async Task<List<Ticket>> getApprovedTicketsAsync(User currentuser)
+        {
+            List<Ticket> approvedtickets = new List<Ticket>();
+            var response = await client.PostAsJsonAsync($"approvedtickets", currentuser);
+            if (response.IsSuccessStatusCode)
+            {
+                approvedtickets = await response.Content.ReadAsAsync<List<Ticket>>();
+            }
+            return approvedtickets;
+        }
+
+        static async Task<List<Ticket>> getDeniedTicketsAsync(User currentuser)
+        {
+            List<Ticket> deniedtickets = new List<Ticket>();
+            var response = await client.PostAsJsonAsync($"deniedtickets", currentuser);
+            if (response.IsSuccessStatusCode)
+            {
+                deniedtickets = await response.Content.ReadAsAsync<List<Ticket>>();
+            }
+            return deniedtickets;
+        }
+
+        static async Task<List<Ticket>> getUserTicketsAsync(User currentuser)
         {
             List<Ticket> tickets = new List<Ticket>();
             var response = await client.PostAsJsonAsync($"gettickets", currentuser);
@@ -333,10 +317,12 @@ namespace P1.Client
             return tickets;
         }
 
+
+        //Gets all pending tickets
         static async Task<List<Ticket>> getPendingTicketsAsync()
         {
             List<Ticket> tickets = new List<Ticket>();
-            var findpath = "pendingticket";
+            var findpath = "allpendingtickets";
             HttpResponseMessage response = await client.GetAsync(findpath);
             if (response.IsSuccessStatusCode)
             {
@@ -353,6 +339,61 @@ namespace P1.Client
         }
 
 
+
+        public static async Task<User> LoginorRegister()
+        {
+            User currentuser = new User();
+            bool toContinue = true;
+            while (toContinue)
+            {
+                Console.WriteLine("Welcome to this program, Please select the following option:\n[1]. Login\n[2]. Register\n[3]. Exit");
+                string input = Console.ReadLine();
+
+                if (String.IsNullOrEmpty(input))
+                {
+                    Console.WriteLine("Please enter a valid input");
+                    Console.WriteLine("Please select the following option:\n[1]. Login\n[2]. Register\n[3]. Exit");
+                }
+                else
+                {
+                    if (input != "1" && input != "2" && input != "3")
+                    {
+                        Console.WriteLine("Please enter a valid input");
+                        Console.WriteLine("Please select the following option:\n[1]. Login\n[2]. Register\n[3]. Exit");
+                    }
+                    else
+                    {
+                        //Registration occurs here
+                        if (input == "1")
+                        {
+                            //user will input values to login
+                            return currentuser = await getLogin();
+                            toContinue = false;
+                            Console.Clear();
+                        }
+                        else if (input == "2")
+                        {
+                            //user will register then is logged in
+                            currentuser = await getRegistration();
+                            //Console.Clear();
+                        }
+                        else if(input == "3")
+                        {
+                            System.Environment.Exit(0);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Please enter a valid input");
+                        }//3rd if-else end  
+
+                    }//2nd if-else end
+
+                }//1st if-else end
+
+            }//while loop end
+            Console.WriteLine("Error Returning empty user object");
+            return currentuser;
+        }
 
         public static User getRegistrationInput()
         {
@@ -415,6 +456,10 @@ namespace P1.Client
                     {
                         toContinue = false;
                     }
+                    else
+                    {
+                        Console.WriteLine("The email you entered is incorrect, please try again");
+                    }
                 }
                 Console.Write("Password: ");
                 inputPassword = Console.ReadLine();
@@ -448,7 +493,8 @@ namespace P1.Client
                     User currentuser = await CreateNewUserAsync(newUser);
                     System.Console.WriteLine("Registration was successful!\n" +
                             "You will be prompt back to the previous menu.");
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("Press any key to Continue");
+                    Console.ReadKey();
                 }
                 else
                 {
@@ -493,7 +539,7 @@ namespace P1.Client
 
         }
 
-        public static int GetTicketType()
+        public static async Task<IEnumerable<Ticket>> GetTicketType(User currentuser)
         {
             bool isValid = true;
             int num = -1;
@@ -505,22 +551,33 @@ namespace P1.Client
                 string returnvalue = Console.ReadLine();
                 if (!(String.IsNullOrEmpty(returnvalue)))
                 {
-                    
-                    
-                    if (returnvalue == "1" || returnvalue == "2" || returnvalue == "3" || returnvalue == "4")
+                    num = Int32.Parse(returnvalue);
+                    switch (num)
                     {
-                        num = Int32.Parse(returnvalue);
-                        isValid = false;
-                        return num;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Please enter a valid input");
+                        case 1:
+                            //get pending tickets
+                            return listofTickets = await getPendingTicketsAsync(currentuser);
+                            break;
+                        case 2:
+                            //get approved tickets
+                            return listofTickets = await getApprovedTicketsAsync(currentuser);
+                            break;
+                        case 3:
+                            //get denied tickets
+                            return listofTickets = await getDeniedTicketsAsync(currentuser);
+                            break;
+                        case 4:
+                            //get all tickets
+                            return listofTickets = await getUserTicketsAsync(currentuser);
+                            break;
+                        default:
+                            Console.WriteLine("Please enter a valid input");
+                            break;
                     }
                 }
             }
             Console.WriteLine("Error, reached outside of while loop in GetTicketType()");
-            return num;
+            return listofTickets;
         }
 
         public static Ticket UpdateTicketInput(IEnumerable<Ticket> pendingtickets)

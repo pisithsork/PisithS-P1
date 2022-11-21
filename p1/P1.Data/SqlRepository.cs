@@ -204,29 +204,13 @@ namespace P1.Data
         }
         
 
-
+        //Gets all user tickets
         public List<Ticket> getUserTickets(User currentuser)
         {
             var ticketList = new List<Ticket>();
             using SqlConnection Connection = new SqlConnection(ConnectionString);
             SqlCommand Command = new SqlCommand();
             Connection.Open();
-
-            /*switch (tickettype)
-            {
-                case 1:
-                    Command = new(@"SELECT * FROM [View.PendingTickets] WHERE employeeid = @EmployeeId;", Connection);
-                    break;
-                case 2:
-                    Command = new(@"SELECT * FROM [View.ApprovedTickets] WHERE employeeid = @EmployeeId;", Connection);
-                    break;
-                case 3:
-                    Command = new(@"SELECT * FROM [View.ApprovedTickets] WHERE employeeid = @EmployeeId;", Connection);
-                    break;
-                case 4:
-                    Command = new(@"SELECT * FROM TicketSystem.Tickets WHERE employeeid = @EmployeeId", Connection);
-                    break;
-            }*/
             Command = new(@"SELECT * FROM TicketSystem.Tickets WHERE employeeid = @EmployeeId", Connection);
             Command.Parameters.AddWithValue("@EmployeeId", currentuser.EmployeeId);
             using SqlDataReader Reader = Command.ExecuteReader();
@@ -247,6 +231,91 @@ namespace P1.Data
             return ticketList;
         }
 
+        //get all user pending tickets
+        public List<Ticket> PendingUserTickets(User currentuser)
+        {
+            var ticketList = new List<Ticket>();
+            using SqlConnection Connection = new SqlConnection(ConnectionString);
+            SqlCommand Command = new SqlCommand();
+            Connection.Open();
+            Command = new(@"SELECT * FROM [View.PendingTickets] WHERE employeeid = @EmployeeId;", Connection);
+            Command.Parameters.AddWithValue("@EmployeeId", currentuser.EmployeeId);
+            using SqlDataReader Reader = Command.ExecuteReader();
+            while (Reader.Read())
+            {
+                Ticket usertickets = new Ticket();
+                usertickets.TicketId = Reader.GetInt32(0);
+                usertickets.EmployeeId = Reader.GetInt32(1);
+                usertickets.Description = Reader.GetString(2);
+                usertickets.Amount = Decimal.ToDouble(Reader.GetDecimal(3));
+                usertickets.StatusofTicket = Reader.GetString(4);
+                usertickets.SubmittedAt = Reader.GetDateTime(5);
+                usertickets.CompletedAt = Reader.GetDateTime(6);
+                ticketList.Add(usertickets);
+            }
+            Reader.Close();
+            Connection.Close();
+
+            return ticketList;
+        }
+
+
+        //gets all user approved tickets
+        public List<Ticket> ApprovedUserTickets(User currentuser)
+        {
+            var ticketList = new List<Ticket>();
+            using SqlConnection Connection = new SqlConnection(ConnectionString);
+            SqlCommand Command = new SqlCommand();
+            Connection.Open();
+            Command = new(@"SELECT * FROM [View.ApprovedTickets] WHERE employeeid = @EmployeeId;", Connection);
+            Command.Parameters.AddWithValue("@EmployeeId", currentuser.EmployeeId);
+            using SqlDataReader Reader = Command.ExecuteReader();
+            while (Reader.Read())
+            {
+                Ticket usertickets = new Ticket();
+                usertickets.TicketId = Reader.GetInt32(0);
+                usertickets.EmployeeId = Reader.GetInt32(1);
+                usertickets.Description = Reader.GetString(2);
+                usertickets.Amount = Decimal.ToDouble(Reader.GetDecimal(3));
+                usertickets.StatusofTicket = Reader.GetString(4);
+                usertickets.SubmittedAt = Reader.GetDateTime(5);
+                usertickets.CompletedAt = Reader.GetDateTime(6);
+                ticketList.Add(usertickets);
+            }
+            Reader.Close();
+            Connection.Close();
+
+            return ticketList;
+        }
+
+
+        //gets all user denied tickets
+        public List<Ticket> DeniedUserTickets(User currentuser)
+        {
+            var ticketList = new List<Ticket>();
+            using SqlConnection Connection = new SqlConnection(ConnectionString);
+            SqlCommand Command = new SqlCommand();
+            Connection.Open();
+            Command = new(@"SELECT * FROM [View.DeniedTickets] WHERE employeeid = @EmployeeId;", Connection);
+            Command.Parameters.AddWithValue("@EmployeeId", currentuser.EmployeeId);
+            using SqlDataReader Reader = Command.ExecuteReader();
+            while (Reader.Read())
+            {
+                Ticket usertickets = new Ticket();
+                usertickets.TicketId = Reader.GetInt32(0);
+                usertickets.EmployeeId = Reader.GetInt32(1);
+                usertickets.Description = Reader.GetString(2);
+                usertickets.Amount = Decimal.ToDouble(Reader.GetDecimal(3));
+                usertickets.StatusofTicket = Reader.GetString(4);
+                usertickets.SubmittedAt = Reader.GetDateTime(5);
+                usertickets.CompletedAt = Reader.GetDateTime(6);
+                ticketList.Add(usertickets);
+            }
+            Reader.Close();
+            Connection.Close();
+
+            return ticketList;
+        }
 
         public List<Ticket> getPendingTickets()
         //Gets all of PENDING tickets only
@@ -290,5 +359,7 @@ namespace P1.Data
             Connection.Close();
             
         }
+
     }
+
 }
