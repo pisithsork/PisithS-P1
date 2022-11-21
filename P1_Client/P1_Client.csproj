@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\p1\P1.Logic\P1.Logic.csproj" />
+  </ItemGroup>
+
 </Project>

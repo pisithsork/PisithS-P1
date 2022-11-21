@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
+using P1.App;
 using P1.Data;
+using P1.Logic;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,8 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 var connectionvalue = File.ReadAllText(@"/Users/pisit/Desktop/SchoolFolder/WorkRevature/ConnectionStrings/P1ConnectionString.txt");
 builder.Services.AddTransient<SqlRepository>();
+
 
 var app = builder.Build();
 
@@ -20,39 +25,56 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-/*var summaries = new[]
+//!This will only create the API in where we call to our functions to perform the various tasks. The best way to think about this is to no longer utilize any function within our IO class. Anything that uses it should not be implemented with it. The function that we call doesn't know what the inputs are until it gets a request from the client.
+
+//https:locahost:7284/getuser
+app.MapGet("/getuser", (SqlRepository repo) =>
+repo.GetAllUsers()
+);
+
+app.MapPost("/getvalid", (User currentuser, SqlRepository repo) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    return repo.isCredentialValid(currentuser);
+});
 
-app.MapGet("/weatherforecast", () =>
+app.MapPost("/getlogin", (string username, SqlRepository repo) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");*/
+    return repo.GetCurrentUser(username);
+});
 
+app.MapGet("/emailexist", (string email, SqlRepository repo) =>
+    repo.doesEmailExist(email));
 
-//I wanna get all users from my database
-
-//https:locahost:7284/getusers
-app.MapGet("/getusers", () =>
+app.MapPost("/getregister", (User newuser, SqlRepository repo) =>
 {
-    IRepository repo = new SqlRepository(connectionvalue);
-    return repo.GetAllUsers();
+    repo.AddNewUser(newuser);
+    newuser = repo.GetCurrentUser(newuser.Email);
+    return newuser;
+});
 
+app.MapGet("/getemails", (SqlRepository repo) =>
+    repo.getAllEmail()
+);
+
+app.MapPost("/ticket", (Ticket newticket, SqlRepository repo) =>
+{
+    newticket = repo.AddNewTicket(newticket);
+    return Results.Created($"/ticket/{newticket.TicketId}", newticket);
+});
+
+app.MapPost("/gettickets", (User currentuser, SqlRepository repo) =>
+{
+    var listoftickets = repo.getUserTickets(currentuser);
+    return listoftickets;
+});
+
+app.MapGet("/pendingticket", (SqlRepository repo) =>
+repo.getPendingTickets());
+
+app.MapPut("/updateticket", (Ticket updateticket, SqlRepository repo) =>
+{
+    repo.UpdateTicket(updateticket);
+    return Results.NoContent();
 });
 
 app.Run();
-
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

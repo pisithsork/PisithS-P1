@@ -33,6 +33,13 @@ namespace P1.Logic
             this.Password = password;
             this.Email = email;
         }
+        public User(string email, string password)
+        {
+            this.Email = email;
+            this.Password = password;
+        }
+
+
 
         //Methods
         //I wanna method to display certain information of the user(s)

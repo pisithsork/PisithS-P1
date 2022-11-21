@@ -9,14 +9,16 @@ namespace P1.Data
 {
     public interface IRepository
     {
+        public List<User> GetAllUsers();
         public bool doesEmailExist(string username);
-        public bool isCredentialValid(string userName, string Password);
+        public int isCredentialValid(User user);
         public void AddNewUser(User newUser);
         public User GetCurrentUser(string currentuserEmail);
-        public void AddNewTicket(Ticket newticket, User currentuser);
-        public List<Ticket> getUserTickets(User currentuser, int tickettype);
-        public List<Ticket> getAllTickets(User currentuser);
+        public Ticket AddNewTicket(Ticket newticket);
+        public List<Ticket> getUserTickets(User currentuser);
+        public List<Ticket> getPendingTickets();
         public void UpdateTicket(Ticket updatedticket);
+        public List<string> getAllEmail();
 
     }
 }

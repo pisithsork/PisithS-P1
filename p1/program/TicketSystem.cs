@@ -26,7 +26,7 @@ namespace P1.App
         
         //Methods
 
-        public User LoginOrRegister()
+        /*public User LoginOrRegister()
         {
             User currentuser = new User();
             bool toContinue = true;
@@ -90,13 +90,15 @@ namespace P1.App
                 {
                     Console.WriteLine("Login Accepted!");
                     currentuser = Repo.GetCurrentUser(UserInput.Item1);
-                    getMenuInput(currentuser);
+                    //getMenuInput(currentuser);
                     loops = false;
                 }
             }
             return currentuser;
 
         }
+
+
 
         public void getMenuInput(User currentuser)
         {
@@ -154,6 +156,6 @@ namespace P1.App
                     }
                 } while (LoggedIn);
             }
-        }
+        }*/
     }
 }

@@ -71,16 +71,37 @@ WHERE EmployeeId = 4;
 
 
 -- NEWLY UPDATED TABLES AND VALUES
-CREATE TABLE TicketSystem.PendingTickets
+CREATE VIEW [View.PendingTickets] AS
+SELECT *
+FROM TicketSystem.Tickets
+WHERE [StatusofTicket] = 'PENDING';
+GO
+
+CREATE VIEW [View.ApprovedTickets] AS
+SELECT *
+FROM TicketSystem.Tickets
+WHERE [StatusofTicket] = 'APPROVED';
+GO
+
+CREATE VIEW [View.DeniedTickets] AS
+SELECT *
+FROM TicketSystem.Tickets
+WHERE [StatusofTicket] = 'DENIED';
+GO
+
+CREATE TABLE TicketSystem.Tickets
 (
     TicketId INT NOT NULL IDENTITY PRIMARY KEY,
     employeeid INT NOT NULL FOREIGN KEY REFERENCES TicketSystem.Users(EmployeeId),
     Descriptions VARCHAR(MAX) NOT NULL,
     Amount DECIMAL(10,2) NOT NULL,
     StatusofTicket VARCHAR(8) DEFAULT('PENDING'),
-    SubmittedAt DATETIME DEFAULT(CURRENT_TIMESTAMP)
+    SubmittedAt DATETIME DEFAULT(CURRENT_TIMESTAMP),
+    CompletedAt DATETIME DEFAULT('')
 );
 
+
+DROP TABLE TicketSystem.CompletedTickets;
 CREATE TABLE TicketSystem.CompletedTickets
 (
     ticketid INT NOT NULL FOREIGN KEY REFERENCES TicketSystem.PendingTickets(TicketId),
@@ -91,12 +112,13 @@ CREATE TABLE TicketSystem.CompletedTickets
     CompletedAt DATETIME DEFAULT(CURRENT_TIMESTAMP)
 );
 
-INSERT INTO TicketSystem.PendingTickets (employeeid, Descriptions, Amount, StatusofTicket, SubmittedAt)
+INSERT INTO TicketSystem.Tickets (employeeid, Descriptions, Amount, StatusofTicket, SubmittedAt, CompletedAt)
 VALUES
-    (2,'Travel Gas', 65.32, DEFAULT, DEFAULT),
-    (3,'Food Lunch', 12.20, DEFAULT, DEFAULT),
-    (3, 'Other Online Certification', 100.00, DEFAULT, DEFAULT),
-    (6, 'Lodging Mariott', 650.90, DEFAULT, DEFAULT),
-    (5, 'Travel Business Flight', 345.78, DEFAULT, DEFAULT),
-    (5, 'Travel Gas', 43.00, DEFAULT, DEFAULT),
-    (3, 'Online Classes', 250.00, DEFAULT, DEFAULT)
+    (2,'Travel Gas', 65.32, DEFAULT, DEFAULT, DEFAULT),
+    (3,'Food Lunch', 12.20, DEFAULT, DEFAULT, DEFAULT),
+    (3, 'Other Online Certification', 100.00, DEFAULT, DEFAULT, DEFAULT),
+    (6, 'Lodging Mariott', 650.90, DEFAULT, DEFAULT, DEFAULT),
+    (5, 'Travel Business Flight', 345.78, DEFAULT, DEFAULT, DEFAULT),
+    (5, 'Travel Gas', 43.00, DEFAULT, DEFAULT, DEFAULT),
+    (3, 'Online Classes', 250.00, DEFAULT, DEFAULT, DEFAULT)
+
